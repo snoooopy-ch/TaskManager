@@ -35,7 +35,13 @@ class TaskController extends Controller
     }
 
     public function delete(Request $request) {
-        $this->taskService->delete($request->id);
+        $this->taskService->delete($request->route('id'));
+        return response()->json(['status' => 'success']);
+    }
+
+    public function edit(StoreTaskRequest $request) {
+        $params = $request->only('name', 'priority', 'project_id');
+        $this->taskService->updateTask($request->route('id'), $params);
         return response()->json(['status' => 'success']);
     }
 

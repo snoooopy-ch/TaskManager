@@ -26,7 +26,13 @@ class StoreTaskRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|unique:tasks',
             'priority' => 'required|integer|min:1',
-            'project_id'=> 'required'
+            'project_id'=> 'required|integer'
+        ];
+    }
+
+    public function messages() {
+        return [
+            'project_id.integer' => 'Please select a project.',
         ];
     }
 }

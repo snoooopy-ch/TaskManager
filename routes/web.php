@@ -15,6 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [App\Http\Controllers\TaskController::class, 'index'])->name('task');
 Route::post('/create', [App\Http\Controllers\TaskController::class, 'create'])->name('create');
-Route::post('/edit', [App\Http\Controllers\TaskController::class, 'edit']);
-Route::post('/delete', [App\Http\Controllers\TaskController::class, 'delete']);
+Route::post('/edit/{id}', [App\Http\Controllers\TaskController::class, 'edit']);
+Route::post('/delete/{id}', [App\Http\Controllers\TaskController::class, 'delete']);
 Route::post('/update-priority', [App\Http\Controllers\TaskController::class, 'update_priority'])->name('update.priority');

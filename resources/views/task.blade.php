@@ -18,14 +18,17 @@
             }
         </style>
 
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.12/datatables.min.css"/>
+        <link href="{{ asset('css/plugins.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/style.css') }}" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
-
 
         <style>
             body {
                 font-family: 'Nunito', sans-serif;
+            }
+
+            .dataTables_info {
+                display: none;
             }
 
         </style>
@@ -33,19 +36,43 @@
     <body class="antialiased">
         <div class="container">
             <div>
-                <form method="post" action="{{ route('create') }}">
-                    @csrf
-                    <label for="name">Task Name:</label><input type="text" id="name" name="name" value="{{ old('name')?? ''}}"/>
-                    <label for="priority">Priority:</label><input type="text" id="priority" name="priority" value="{{ old('priority')?? ''}}"/>
-                    <label for="project_id">Project:</label>
-                    <select name="project_id">
-                        <option>Select a project</option>
-                        @foreach($projects as $key => $project)
-                            <option value="{{ $project->id }}" @if (old('project_id') && old('project_id') == $project->id)? selected @endif>{{ $project->title }}</option>
-                        @endforeach
-                    </select>
-                    <input type="submit" value="Create" />
-                </form>
+                <div class="card mt-1">
+                    <div class="card-body">
+                        <form method="post" action="{{ route('create') }}" role="form" class="form-validate">
+                            @csrf
+                            <div class="row">
+                                <div class="col-3">
+                                    <div class="form-group col-12">
+                                        <label for="name">Task Name:</label><input type="text" id="name" name="name" class="form-control" value="{{ old('name')?? ''}}"/>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group col-12">
+                                        <label for="priority">Priority:</label><input type="text" id="priority" name="priority"  class="form-control" value="{{ old('priority')?? ''}}"/>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group col-12">
+                                        <label for="project_id">Project:</label>
+                                        <select name="project_id"  class="form-control">
+                                            <option>Select a project</option>
+                                            @foreach($projects as $key => $project)
+                                                <option value="{{ $project->id }}" @if (old('project_id') && old('project_id') == $project->id)? selected @endif>{{ $project->title }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="form-group col-12">
+                                        <input type="submit" class="btn btn-primary form-control" value="Create" />
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 @if ($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <ul>
@@ -63,6 +90,15 @@
                 @endif
             </div>
     
+            <div class="form-group col-3">
+                <label for="project_id">Project:</label>
+                <select name="project_id"  class="form-control">
+                    @foreach($projects as $key => $project)
+                        <option value="{{ $project->id }}" @if (old('project_id') && old('project_id') == $project->id)? selected @endif>{{ $project->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0 d-block">
                 <table id="table" class="table table-bordered">
                     <thead>
@@ -77,7 +113,7 @@
                             <tr class="row1" data-id="{{ $task->id }}">
                                 <td>{{ $task->name }}</td>
                                 <td>{{ date('d-m-Y h:m:s',strtotime($task->created_at)) }}</td>
-                                <td><i class="fa fa-edit" onClick="javascript:onEdit({{ $task->id }}, '{{ $task->name }}', {{ $task->priority }}, {{ $task->project_id }})"></i><i class="fa fa-trash" onClick="javascript: onDelete({{ $task->id }})"></i></td>
+                                <td><i class="fa fa-edit m-r-15" onClick="javascript:onEdit({{ $task->id }}, '{{ $task->name }}', {{ $task->priority }}, {{ $task->project_id }})"></i><i class="fa fa-trash" onClick="javascript: onDelete({{ $task->id }})"></i></td>
                             </tr>
                         @endforeach
                     </tbody>                  
@@ -91,22 +127,23 @@
             <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5>Edit Task</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            Edit Task
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body" id="smallBody">
-                        <div>
-                            <div class="row">
-                                <label for="name">Task Name:</label><input type="text" id="edit_name" name="name"/>
+                        <input type="hidden" id="edit_id" />
+                        <div class="form-validate">
+                            <div class="row form-group">
+                                <label for="name">Task Name:</label><input type="text" id="edit_name" name="name" class="form-control" />
                             </div>
-                            <div class="row">
-                                <label for="priority">Priority:</label><input type="text" id="edit_priority" name="priority"/>
+                            <div class="row form-group">
+                                <label for="priority">Priority:</label><input type="text" id="edit_priority" name="priority"  class="form-control"/>
                             </div>
-                            <div class="row">
-                                <label id="edit_project" for="project_id">Project:</label>
-                                <select name="project_id">
+                            <div class="row form-group">
+                                <label for="project_id" >Project:</label>
+                                <select id="edit_project" name="project_id" class="form-control">
                                     <option>Select a project</option>
                                     @foreach($projects as $key => $project)
                                         <option value="{{ $project->id }}">{{ $project->title }}</option>
@@ -115,18 +152,25 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal-bottom text-center">
+                        <button type="button" id="btn_btn" class="btn btn-primary" onClick="javascript:onEditSubmit()">Save</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="{{ cAsset('js/jquery.js') }}"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-        <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js' type='text/javascript'></script>
+        <script src="{{ cAsset('js/plugins.js') }}"></script>
+        <script src="{{ cAsset('plugins/datatables/datatables.min.js') }}"></script>
 
-        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.12/datatables.min.js"></script>
         <script type="text/javascript">
             $(function () {
-                $("#table").DataTable();
+                $("#table").DataTable({
+                    searching: false,
+                    bSort: false,
+                    bPaginate: false,
+                });
         
                 $( "#tablecontents" ).sortable({
                     items: "tr",
@@ -170,13 +214,14 @@
                 $('#edit_name').val(name);
                 $('#edit_priority').val(priority);
                 $('#edit_project').val(project_id);
+                $('#edit_id').val(id);
                 $('#editModal').modal("show");
             }
 
             function onDelete(id) {
                 $.ajax({
                     type: "POST", 
-                    url: "{{ url('delete') }}",
+                    url: "{{ url('delete') }}/" + id,
                     data: {
                         id: id,
                         _token: $('meta[name="csrf-token"]').attr('content')
@@ -185,6 +230,31 @@
                         if (response.status == "success") {
                             location.reload();
                             return false;
+                        } else {
+                            console.log(response);
+                        }
+                    }
+                });
+            }
+
+            function onEditSubmit() {
+                let name = $('#edit_name').val();
+                let priority = $('#edit_priority').val();
+                let project = $('#edit_project').val();
+                let id = $('#edit_id').val();
+
+                $.ajax({
+                    type: "POST", 
+                    url: "{{ url('edit') }}/" + id,
+                    data: {
+                        name: name,
+                        priority: priority,
+                        project_id: project,
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.status == "success") {
+                            console.log(response);
                         } else {
                             console.log(response);
                         }
