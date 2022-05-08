@@ -43,12 +43,14 @@
                             <div class="row">
                                 <div class="col-3">
                                     <div class="form-group col-12">
-                                        <label for="name">Task Name:</label><input type="text" id="name" name="name" class="form-control" value="{{ old('name')?? ''}}"/>
+                                        <label for="name">Task Name:</label>
+                                        <input type="text" id="name" name="name" class="form-control" value="{{ old('name')?? ''}}" placeholder="Input a task name"/>
                                     </div>
                                 </div>
                                 <div class="col-3">
                                     <div class="form-group col-12">
-                                        <label for="priority">Priority:</label><input type="text" id="priority" name="priority"  class="form-control" value="{{ old('priority')?? ''}}"/>
+                                        <label for="priority">Priority:</label>
+                                        <input type="text" id="priority" name="priority"  class="form-control" value="{{ old('priority')?? ''}}" placeholder="Input a priority"/>
                                     </div>
                                 </div>
                                 <div class="col-3">
@@ -64,6 +66,7 @@
                                 </div>
                                 <div class="col-3">
                                     <div class="form-group col-12">
+                                        <label class="form-label">&nbsp;</label>
                                         <input type="submit" class="btn btn-primary form-control" value="Create" />
                                     </div>
                                     
@@ -92,9 +95,9 @@
     
             <div class="form-group col-3">
                 <label for="project_id">Project:</label>
-                <select name="project_id"  class="form-control">
+                <select id="project_select" name="project_id"  class="form-control"  onchange="javascript:onProjectSelect()">
                     @foreach($projects as $key => $project)
-                        <option value="{{ $project->id }}" @if (old('project_id') && old('project_id') == $project->id)? selected @endif>{{ $project->title }}</option>
+                        <option value="{{ $project->id }}" @if (isset($selectedProject) && $selectedProject == $project->id)? selected @endif>{{ $project->title }}</option>
                     @endforeach
                 </select>
             </div>
@@ -103,7 +106,7 @@
                 <table id="table" class="table table-bordered">
                     <thead>
                       <tr>
-                        <th>Title</th>
+                        <th>Task</th>
                         <th>Created At</th>
                         <th>Action</th>
                       </tr>
@@ -137,9 +140,11 @@
                         <div class="form-validate">
                             <div class="row form-group">
                                 <label for="name">Task Name:</label><input type="text" id="edit_name" name="name" class="form-control" />
+                                <div class="is-invalid d-none" id="edit_name_error"></div>
                             </div>
                             <div class="row form-group">
                                 <label for="priority">Priority:</label><input type="text" id="edit_priority" name="priority"  class="form-control"/>
+                                <div class="is-invalid d-none" id="edit_priority_error"></div>
                             </div>
                             <div class="row form-group">
                                 <label for="project_id" >Project:</label>
@@ -194,7 +199,7 @@
                     $.ajax({
                         type: "POST", 
                         dataType: "json", 
-                        url: "{{ url('update-priority') }}",
+                        url: "{{ route('update.priority') }}",
                             data: {
                             order: order,
                             _token: token
@@ -215,6 +220,13 @@
                 $('#edit_priority').val(priority);
                 $('#edit_project').val(project_id);
                 $('#edit_id').val(id);
+
+                $('#edit_name_error').text();
+                $('#edit_priority_error').text();
+
+                $('#edit_name_error').addClass('d-none');
+                $('#edit_priority_error').addClass('d-none');
+
                 $('#editModal').modal("show");
             }
 
@@ -254,12 +266,27 @@
                     },
                     success: function(response) {
                         if (response.status == "success") {
-                            console.log(response);
+                            location.reload();
                         } else {
                             console.log(response);
                         }
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        var data = xhr.responseJSON;
+                        if (data.errors != undefined) {
+                            errors = Object.entries(data.errors);
+                            errors.forEach( error => {
+                                $('#edit_' + error[0] + '_error').text(error[1][0]);
+                                $('#edit_' + error[0] + '_error').removeClass('d-none');
+                            });
+                        }
                     }
                 });
+            }
+
+            function onProjectSelect() {
+                let project_id = $('#project_select').val();
+                window.location.href = "{{ route('task') }}?project=" + project_id;
             }
         </script>
     </body>

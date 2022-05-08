@@ -6,7 +6,7 @@ use App\Models\Task;
 use Illuminate\Database\Eloquent\Collection;
 
 interface TaskRepositoryInterface {
-    public function all();
+    public function all(int $project_id);
 
     public function update(int $id, array $attributes);
 

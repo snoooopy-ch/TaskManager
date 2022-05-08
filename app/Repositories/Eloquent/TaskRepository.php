@@ -13,8 +13,8 @@ class TaskRepository implements TaskRepositoryInterface {
         $this->task = $task;
     }
 
-    public function all(): Collection {
-        return $this->task->all();
+    public function all($project_id): Collection {
+        return $this->task->filter($project_id)->orderBy('priority', 'asc')->get();
     }
 
     public function findById($id) {

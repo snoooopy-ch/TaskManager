@@ -31,8 +31,8 @@ class TaskService extends Service {
         $this->logger = $logger;
     }
 
-    public function tasks() {
-        return $this->task->all();
+    public function tasks($project_id) {
+        return $this->task->all($project_id);
     }
 
     public function updateTask($id, $attributes) {

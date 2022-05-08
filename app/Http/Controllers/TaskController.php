@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\TaskService;
 use App\Services\ProjectService;
 use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
 use App\Models\Project;
 
@@ -20,9 +21,16 @@ class TaskController extends Controller
     }
 
     public function index() {
-        $tasks = $this->taskService->tasks();
+        $projects = $this->projectService->projects();
+        return redirect()->route('task', ['project' => $projects[0]->id]);
+    }
+
+    public function tasks(Request $request) {
+        $default = $request->input('project')?? 1;
+        $tasks = $this->taskService->tasks($default);
         $projects = $this->projectService->projects();
         return view('task')
+            ->withSelectedProject($default)
             ->withTasks($tasks)
             ->withProjects($projects);
     }
@@ -31,7 +39,7 @@ class TaskController extends Controller
         $params = $request->only('name', 'priority', 'project_id');
         $this->taskService->create($params);
 
-        return redirect()->route('task')->with('success', 'Created successfully')->withInput();
+        return redirect()->back()->with('success', 'Created successfully')->withInput();
     }
 
     public function delete(Request $request) {
@@ -39,7 +47,7 @@ class TaskController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    public function edit(StoreTaskRequest $request) {
+    public function edit(UpdateTaskRequest $request) {
         $params = $request->only('name', 'priority', 'project_id');
         $this->taskService->updateTask($request->route('id'), $params);
         return response()->json(['status' => 'success']);
