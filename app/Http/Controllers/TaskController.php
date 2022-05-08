@@ -22,7 +22,9 @@ class TaskController extends Controller
 
     public function index() {
         $projects = $this->projectService->projects();
-        return redirect()->route('task', ['project' => $projects[0]->id]);
+        return redirect()->route('task', [
+            'project' => $projects[0]->id
+        ]);
     }
 
     public function tasks(Request $request) {
@@ -39,7 +41,10 @@ class TaskController extends Controller
         $params = $request->only('name', 'priority', 'project_id');
         $this->taskService->create($params);
 
-        return redirect()->back()->with('success', 'Created successfully')->withInput();
+        return redirect()
+            ->back()
+            ->with('success', 'Created successfully')
+            ->withInput();
     }
 
     public function delete(Request $request) {
@@ -55,7 +60,9 @@ class TaskController extends Controller
 
     public function update_priority(Request $request) {
         foreach ($request->order as $order) {
-            $this->taskService->updateTask($order['id'], ['priority' => $order['position']]);
+            $this->taskService->updateTask($order['id'], [
+                'priority' => $order['position']
+            ]);
         }
     	return response()->json(['status'=>'success']);
     }
